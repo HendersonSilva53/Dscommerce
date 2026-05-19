@@ -5,7 +5,6 @@ import com.devsuperior.dscommerce.entities.Role;
 import com.devsuperior.dscommerce.entities.User;
 import com.devsuperior.dscommerce.projection.UserDetailsProjection;
 import com.devsuperior.dscommerce.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,12 +19,15 @@ import java.util.List;
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<UserDetailsProjection> result = repository.searchUserAndRolesByEmail(username);
+        List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
         if(result.size() == 0){
             throw new UsernameNotFoundException("User not found");
         }
@@ -43,8 +45,7 @@ public class UserService implements UserDetailsService {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
             String username = jwtPrincipal.getClaim("username");
-
-            return repository.findByEmail(username).get();
+            return userRepository.findByEmail(username).get();
         }catch(Exception e){
             throw new UsernameNotFoundException("Email not found");
         }
