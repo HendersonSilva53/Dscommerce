@@ -19,5 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
 
+    @Query("SELECT obj FROM User obj JOIN FETCH obj.roles WHERE obj.email = :email")
     Optional<User> findByEmail(String email);
 }
